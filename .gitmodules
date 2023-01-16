@@ -1,5 +1,0 @@
-[submodule]
-	ifind-utilities = main
-[submodule "ifind-utilities"]
-	branch = main
-	update = merge
