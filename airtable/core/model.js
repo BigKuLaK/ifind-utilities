@@ -1,13 +1,12 @@
+const { reject } = require("underscore");
 const { getBase } = require("./api");
 
 /**
  * TYPDEFS
  *
- * @typedef {Record<string, any>} CreateEntryData
- */
-
-/**
+ * @typedef {import('airtable').Records<any>} Records
  * @typedef {import('./api').BaseAliases} BaseAliases
+ * @typedef {Record<string, any>} CreateEntryData
  */
 
 class Model {
@@ -20,16 +19,54 @@ class Model {
   /**
    *
    * @param {CreateEntryData[]} data
-   * @returns
    */
-  static create(data) {
-    if (this.base && this.table) {
-      return (
-        this.getTable()?.create(data.map((fields) => ({ fields }))) || null
-      );
-    }
+  static async create(data) {
+    return new Promise((resolve, reject) => {
+      if (this.base && this.table) {
+        this.getTable()?.create(
+          data.map((fields) => ({ fields })),
+          (err, records) => {
+            if (err) {
+              console.error(err);
+              reject(err);
+            } else {
+              resolve(records);
+            }
+          }
+        );
+      } else {
+        resolve([]);
+      }
+    });
+  }
 
-    return null;
+  /**@returns {Promise<Records>} */
+  static async all(options = {}, pageFunction = (records) => {}) {
+    return new Promise((resolve, reject) => {
+      const records = [];
+
+      if (this.base && this.table) {
+        this.getTable()
+          ?.select(options)
+          .eachPage(
+            (pageRecords, fetchNexPage) => {
+              pageFunction(pageRecords);
+              records.push(...pageRecords);
+              fetchNexPage();
+            },
+            (err) => {
+              if (err) {
+                console.error(err);
+                reject(err);
+              } else {
+                resolve(records);
+              }
+            }
+          );
+      } else {
+        resolve(records);
+      }
+    });
   }
 
   static getBase() {
