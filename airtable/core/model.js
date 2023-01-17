@@ -1,4 +1,3 @@
-const { reject } = require("underscore");
 const { getBase } = require("./api");
 
 /**
@@ -40,7 +39,8 @@ class Model {
     });
   }
 
-  /**@returns {Promise<Records>} */
+  /**
+   * @returns {Promise<Records>}*/
   static async all(options = {}, pageFunction = (records) => {}) {
     return new Promise((resolve, reject) => {
       const records = [];
