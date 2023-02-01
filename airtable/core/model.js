@@ -6,6 +6,7 @@ const { getBase } = require("./api");
  * @typedef {import('airtable').Records<any>} Records
  * @typedef {import('./api').BaseAliases} BaseAliases
  * @typedef {Record<string, any>} CreateEntryData
+ * @typedef {{ id: string, fields: Record<string, any> }} UpdateEntryData
  */
 
 class Model {
@@ -16,7 +17,6 @@ class Model {
   static table = null;
 
   /**
-   *
    * @param {CreateEntryData[]} data
    */
   static async create(data) {
@@ -33,6 +33,26 @@ class Model {
             }
           }
         );
+      } else {
+        resolve([]);
+      }
+    });
+  }
+
+  /**
+   * @param {UpdateEntryData[]} data
+   */
+  static async update(data) {
+    return new Promise((resolve, reject) => {
+      if (this.base && this.table) {
+        this.getTable()?.update(data, (err, records) => {
+          if (err) {
+            console.error(err);
+            reject(err);
+          } else {
+            resolve(records);
+          }
+        });
       } else {
         resolve([]);
       }
