@@ -11,6 +11,10 @@ class Sites extends Model {
   static base = "scheduledTasks";
 
   static table = "tasks";
+
+  static async all() {
+    return this.getAll({ view: "active_tasks" });
+  }
 }
 
 module.exports = Sites;

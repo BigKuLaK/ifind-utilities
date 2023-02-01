@@ -62,6 +62,12 @@ class Model {
   /**
    * @returns {Promise<Records>}*/
   static async all(options = {}, pageFunction = (records) => {}) {
+    return this.getAll(options, pageFunction);
+  }
+
+  /**
+   * @returns {Promise<Records>}*/
+  static async getAll(options = {}, pageFunction = (records) => {}) {
     return new Promise((resolve, reject) => {
       const records = [];
 
