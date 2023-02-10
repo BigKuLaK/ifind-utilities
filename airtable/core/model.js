@@ -20,19 +20,41 @@ class Model {
    * @param {CreateEntryData[]} data
    */
   static async create(data) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       if (this.base && this.table) {
-        this.getTable()?.create(
-          data.map((fields) => ({ fields })),
-          (err, records) => {
-            if (err) {
-              console.error(err);
-              reject(err);
-            } else {
-              resolve(records);
-            }
+        const createdRecords = [];
+
+        // Make a chunked requests of 10 items (max per create request)
+        const chunkedData = [];
+
+        data.forEach((itemData, index) => {
+          const chunkIndex = Math.floor(index / 10);
+
+          if (!chunkedData[chunkIndex]) {
+            chunkedData[chunkIndex] = [];
           }
-        );
+
+          chunkedData[chunkIndex].push(itemData);
+        });
+
+        for (let itemsData of chunkedData) {
+          // Add interval between each request to avoid hitting the rate limit
+          await new Promise((res) => setTimeout(res, 500));
+
+          await this.getTable()?.create(
+            itemsData.map((fields) => ({ fields })),
+            (err, records) => {
+              if (err) {
+                console.error(err);
+                reject(err);
+              } else {
+                createdRecords.push(...records);
+              }
+            }
+          );
+        }
+
+        resolve(createdRecords);
       } else {
         resolve([]);
       }
@@ -92,6 +114,46 @@ class Model {
       } else {
         resolve(records);
       }
+    });
+  }
+
+  static async delete(recordIds) {
+    return new Promise(async (resolve, reject) => {
+      const deletedRecords = [];
+
+      if (this.base && this.table && recordIds.length) {
+        // Make a chunked requests of 10 items (max per create request)
+        const chunkedData = [];
+
+        recordIds.forEach((itemData, index) => {
+          const chunkIndex = Math.floor(index / 10);
+
+          if (!chunkedData[chunkIndex]) {
+            chunkedData[chunkIndex] = [];
+          }
+
+          chunkedData[chunkIndex].push(itemData);
+        });
+
+        for (let itemsData of chunkedData) {
+          // Add interval between each request to avoid hitting the rate limit
+          await new Promise((res) => setTimeout(res, 500));
+
+          await this.getTable()
+            ?.destroy(itemsData)
+            .then((err, records) => {
+              if (err) {
+                console.error(err);
+                reject(err);
+              } else {
+                deletedRecords.push(...records);
+              }
+            })
+            .catch((err) => reject(err));
+        }
+      }
+
+      resolve(deletedRecords);
     });
   }
 
