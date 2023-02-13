@@ -6,7 +6,7 @@ const Model = require("../core/model");
  * @typedef {import('../core/api').BaseAliases} BaseAliases
  */
 
-class DealTypes extends Model {
+class DealCategories extends Model {
   /**@type {BaseAliases} */
   static base = "scheduledTasks";
 
@@ -38,4 +38,4 @@ class DealTypes extends Model {
   }
 }
 
-module.exports = DealTypes;
+module.exports = DealCategories;
