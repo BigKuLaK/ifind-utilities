@@ -13,7 +13,7 @@ class DealCategories extends Model {
   static table = "deal_categories";
 
   static async allData() {
-    const dealTypes = await this.all().then((records) =>
+    const dealTypes = await this.all({ view: "default" }).then((records) =>
       records.map(({ fields }) => ({
         ...fields,
         label: this.constructLabels(fields),
