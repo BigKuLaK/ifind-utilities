@@ -5,10 +5,10 @@
  * @returns {string}
  */
 const swapDotAndComma = (currency) => {
-  const [noSymbol] = currency.trim().match(/[0-9]+[0-9,. ]*/) || [];
+  const [priceWithoutSymbol] = currency?.trim().match(/[0-9]+[0-9,. ]*/) || [];
 
-  if (noSymbol) {
-    return noSymbol.replace(/[,. ]/g, (match) => {
+  if (priceWithoutSymbol) {
+    return priceWithoutSymbol.replace(/[,. ]/g, (match) => {
       switch (match) {
         case ".":
         case " ":
