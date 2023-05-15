@@ -21,10 +21,11 @@ class IfindIcons extends Model {
    */
   static async matchList(iconsList) {
     const iconsRecords = await this.all();
+    const iconsListIDs = iconsList.map(({ id }) => id);
 
-    const iconsToDelete = iconsRecords
-      .filter(({ fields }) => !iconsList.find(({ id }) => id === fields.id))
-      .map(({ id }) => id);
+    const iconsToDelete = iconsRecords.filter(
+      ({ fields }) => !iconsListIDs.includes(fields.id)
+    );
 
     const iconsToAdd = iconsList.filter(
       ({ id }) => !iconsRecords.find(({ fields }) => id === fields.id)
@@ -32,9 +33,11 @@ class IfindIcons extends Model {
 
     try {
       // Delete icons that are not in the list
-      const deletedIcons = await IfindIcons.delete(iconsToDelete);
+      const deletedIcons = await IfindIcons.delete(
+        iconsToDelete.map(({ id }) => id)
+      );
 
-      await new Promise((res) => setTimeout(res, 500));
+      await new Promise((res) => setTimeout(res, 1000));
 
       // Add new icons
       const addedIcons = await IfindIcons.create(iconsToAdd);
