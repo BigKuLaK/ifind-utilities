@@ -13,7 +13,9 @@ class DealTypes extends Model {
   static table = "deal_types";
 
   static async allData() {
-    const dealTypes = await this.all().then((records) =>
+    const dealTypes = await this.all({
+      view: "active_deal_types",
+    }).then((records) =>
       records.map(({ fields }) => ({
         ...fields,
         ...this.constructLabels(fields),
